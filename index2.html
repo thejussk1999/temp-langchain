@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #4f46e5;
+            --text: #f8fafc;
+            --accent: #94a3b8;
+            --border: #334155;
+            --nav-hover: #2d3748;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: rgba(15, 23, 42, 0.5);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .tab-content { padding: 2.5rem; display: none; }
+        .tab-content.active { display: block; }
+
+        h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
+        p { color: var(--accent); font-size: 0.85rem; margin-bottom: 2rem; }
+        
+        .upload-group { margin-bottom: 1.2rem; }
+        
+        /* Specific spacing for the second file input group */
+        .file2-group { margin-top: 1.5rem; }
+
+        label { display: block; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 0.4rem; }
+        
+        input[type="file"], select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            color: var(--text);
+            box-sizing: border-box;
+        }
+
+        /* Increased spacing here via margin-bottom */
+        #sheet-selector-container {
+            display: none;
+            background: rgba(79, 70, 229, 0.05);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            margin-top: 0.5rem;
+            margin-bottom: 2.5rem; /* THE GAP: Increased from 1.5rem to 2.5rem */
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button.submit-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="openTab(event, 'process')">Process</button>
+            <button class="tab-btn" onclick="openTab(event, 'settings')">Settings</button>
+        </div>
+
+        <div id="process" class="tab-content active">
+            <h1>Data Processor</h1>
+            <p>Select your files to generate the report.</p>
+            
+            <form method="post" action="/process" enctype="multipart/form-data">
+                <div class="upload-group">
+                    <label>First DataFrame (CSV/Excel)</label>
+                    <input type="file" id="file1" name="file1" accept=".csv, .xlsx" required>
+                </div>
+
+                <div id="sheet-selector-container">
+                    <label style="color: var(--primary);">Select Sheet to Process</label>
+                    <select id="sheet_name" name="sheet_name">
+                        <option value="">Loading sheets...</option>
+                    </select>
+                </div>
+
+                <div class="upload-group file2-group">
+                    <label>Second DataFrame (CSV)</label>
+                    <input type="file" name="file2" accept=".csv" required>
+                </div>
+
+                <button type="submit" class="submit-btn">Process & Save</button>
+            </form>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <h1>Settings</h1>
+            <p>Configuration options coming soon.</p>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active"); }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.classList.add("active");
+        }
+
+        document.getElementById('file1').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const container = document.getElementById('sheet-selector-container');
+            const dropdown = document.getElementById('sheet_name');
+
+            if (!file) {
+                container.style.display = 'none';
+                return;
+            }
+
+            if (file.name.endsWith('.csv')) {
+                container.style.display = 'block';
+                dropdown.innerHTML = '<option value="Default">CSV (Standard)</option>';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                dropdown.innerHTML = '';
+                workbook.SheetNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown.appendChild(option);
+                });
+                container.style.display = 'block';
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>
