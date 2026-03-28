@@ -1,36 +1,33 @@
-function fetchSheetNames(input, selectId) {
-    const fileNameDisplay = input.nextElementSibling;
-    const selectDropdown = document.getElementById(selectId);
-    const wrapper = document.getElementById('wrapper-' + selectId);
-    
-    if (input.files.length === 0) return;
+document.getElementById('file1').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const container = document.getElementById('sheet-selector-container');
+            const dropdown = document.getElementById('sheet_name');
 
-    // Update the visual filename
-    fileNameDisplay.innerText = input.files[0].name;
+            if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', input.files[0]);
+            // If it's a CSV, it only has one "Sheet"
+            if (file.name.endsWith('.csv')) {
+                container.style.display = 'block';
+                dropdown.innerHTML = '<option value="Default">CSV (Standard)</option>';
+                return;
+            }
 
-    fetch('/get_sheets', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(sheets => {
-        // Clear previous options
-        selectDropdown.innerHTML = '';
-        
-        if (sheets.length > 0) {
-            sheets.forEach(name => {
-                let opt = document.createElement('option');
-                opt.value = name;
-                opt.innerHTML = name;
-                selectDropdown.appendChild(opt);
-            });
-            // Show the dropdown area
-            wrapper.style.display = 'block';
-        } else {
-            wrapper.style.display = 'none';
-        }
-    });
-}
+            // If it's Excel, use FileReader + SheetJS to get sheet names
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // Clear and populate dropdown
+                dropdown.innerHTML = '';
+                workbook.SheetNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    dropdown.appendChild(option);
+                });
+
+                container.style.display = 'block';
+            };
+            reader.readAsArrayBuffer(file);
+        });
