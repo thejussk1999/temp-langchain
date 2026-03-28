@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #1e293b;
+            padding: 3rem;
+            border-radius: 1rem;
+            text-align: center;
+            max-width: 400px;
+            border-top: 5px solid {{ 'green' if color == 'green' else 'red' }};
+        }
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: {{ 'green' if color == 'green' else 'red' }};
+        }
+        .btn-home {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        .btn-home:hover { background: #334155; }
+        
+        /* The Big Save Button */
+        .save-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="status-icon">
+            {{ '✓' if color == 'green' else '✕' }}
+        </div>
+        <h1>{{ status }}</h1>
+        <p>{{ message }}</p>
+
+        {% if count > 0 %}
+            <button class="save-btn" onclick="triggerDownload()">
+                💾 Save Excel File
+            </button>
+            <script>
+                function triggerDownload() {
+                    fetch('/download').then(r => { if(r.ok) alert("Saved!"); });
+                }
+                window.onload = triggerDownload;
+            </script>
+        {% endif %}
+
+        <br>
+        <a href="{{ url_for('index') }}" class="btn-home">← Back to Upload</a>
+    </div>
+</body>
+</html>
