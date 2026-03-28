@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #4f46e5;
+            --text: #f8fafc;
+            --accent: #94a3b8;
+            --border: #334155;
+            --nav-hover: #2d3748;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--border);
+            overflow: hidden; /* Keeps tab highlights within border radius */
+        }
+
+        /* Tabs Header */
+        .tabs-header {
+            display: flex;
+            background: rgba(15, 23, 42, 0.5);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--nav-hover);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            background: transparent;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            padding: 2.5rem;
+            display: none; /* Hidden by default */
+        }
+
+        .tab-content.active {
+            display: block; /* Show only the active tab */
+        }
+
+        h1 { margin: 0 0 0.5rem 0; font-size: 1.8rem; }
+        p { color: var(--accent); font-size: 0.9rem; margin-bottom: 2rem; }
+        
+        .upload-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 0.5rem; }
+        
+        input[type="file"] {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            color: var(--accent);
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        
+        button.submit-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            margin-top: 1rem;
+        }
+
+        button.submit-btn:hover { background: #4338ca; }
+        button.submit-btn:active { transform: scale(0.98); }
+
+        /* Placeholder for future tabs */
+        .placeholder-text {
+            text-align: center;
+            color: var(--accent);
+            padding: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="openTab(event, 'process')">Process</button>
+            <button class="tab-btn" onclick="openTab(event, 'history')">History</button>
+            <button class="tab-btn" onclick="openTab(event, 'settings')">Settings</button>
+        </div>
+
+        <div id="process" class="tab-content active">
+            <h1>Data Processor</h1>
+            <p>Merge two CSV files into one Excel report.</p>
+            <form method="post" action="/process" enctype="multipart/form-data">
+                <div class="upload-group">
+                    <label>First DataFrame</label>
+                    <input type="file" name="file1" accept=".csv" required>
+                </div>
+                <div class="upload-group">
+                    <label>Second DataFrame</label>
+                    <input type="file" name="file2" accept=".csv" required>
+                </div>
+                <button type="submit" class="submit-btn">Process & Save</button>
+            </form>
+        </div>
+
+        <div id="history" class="tab-content">
+            <h1>History</h1>
+            <p class="placeholder-text">Recent processing logs will appear here.</p>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <h1>Settings</h1>
+            <p class="placeholder-text">Configure export formats and API keys.</p>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tab-content" and hide them
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+
+            // Get all elements with class="tab-btn" and remove the class "active"
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+</body>
+</html>
