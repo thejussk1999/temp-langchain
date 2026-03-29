@@ -44,3 +44,51 @@
     color: var(--primary);
     font-style: italic;
 }
+
+
+<div class="upload-group">
+    <label>First DataFrame (CSV/Excel)</label>
+    <input type="file" id="file1" name="file1" accept=".csv, .xlsx" class="file-input-hidden" required>
+    <label for="file1" class="custom-file-upload" id="label-file1">
+        <span>📁 Choose a file...</span>
+    </label>
+    <span id="name-file1" class="file-name-display"></span>
+</div>
+
+<div id="sheet-selector-container">
+    </div>
+
+<div class="upload-group file2-group">
+    <label>Second DataFrame (CSV)</label>
+    <input type="file" id="file2" name="file2" accept=".csv" class="file-input-hidden" required>
+    <label for="file2" class="custom-file-upload" id="label-file2">
+        <span>📁 Choose a file...</span>
+    </label>
+    <span id="name-file2" class="file-name-display"></span>
+</div>
+
+
+// Function to update the UI when a file is selected
+function handleFileSelection(inputId, labelId, nameId) {
+    const input = document.getElementById(inputId);
+    const label = document.getElementById(labelId);
+    const nameDisplay = document.getElementById(nameId);
+
+    input.addEventListener('change', function(e) {
+        const fileName = e.target.files[0] ? e.target.files[0].name : "Choose a file...";
+        
+        if (e.target.files[0]) {
+            label.classList.add('file-selected');
+            label.innerHTML = '<span>✅ File Selected</span>';
+            nameDisplay.textContent = fileName;
+        } else {
+            label.classList.remove('file-selected');
+            label.innerHTML = '<span>📁 Choose a file...</span>';
+            nameDisplay.textContent = '';
+        }
+    });
+}
+
+// Initialize for both inputs
+handleFileSelection('file1', 'label-file1', 'name-file1');
+handleFileSelection('file2', 'label-file2', 'name-file2');
